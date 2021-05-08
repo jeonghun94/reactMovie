@@ -1,47 +1,45 @@
 import React from "react";
+import axios from "axios";
+import Movie from "./Movie";
 // import PropTypes from "prop-types";
 
 class App extends React.Component{
 
-  constructor(props){
-    super(props)
-    console.log('render');
-  }
-
   state = {
-    count : 0
+    isLoading : true,
+    movies:[]
   };
 
-  add  = () => {
-    this.setState(c => ({count: c.count + 1}));
-  };
 
-  min = () => {
-    this.setState(c => ({count: c.count -1}));
+  getMovies = async () => {
+    const {data: {data: {movies}}} = await axios.get("https://yts-proxy.now.sh/list_movies.json?sort_ by=rating");
+
+    console.log(movies);
+    this.setState({ movies, isLoading:false });
   };
 
   componentDidMount(){
-    console.log('mount');
-  }
-
-  componentDidUpdate(){
-    console.log('update');
-  }
-
-  componentWillUnmount(){
-    console.log('unmount');
+    this.getMovies();
   }
 
   render(){
-    console.clear();
-    console.log('render');
+    const {isLoading,movies} = this.state;
     return (
       <div>
-        <h1>The number is {this.state.count}</h1>
-        <button onClick={this.add}>Add</button>
-        <button onClick={this.min}>Min</button>
+        {isLoading 
+        ? "Loading..."
+        : movies.map(movie => (
+          <Movie
+            key={movie.id}
+            id={movie.id}
+            year={movie.year}
+            title={movie.title}
+            summary={movie.summary}
+            poster={movie.medium_cover_image}
+          />
+        ))}
       </div>
-    )
+    );
   }
 }
 
